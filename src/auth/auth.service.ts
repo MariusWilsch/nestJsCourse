@@ -16,6 +16,8 @@ export class AuthService {
 	async signup(dto: AuthDto) {
 		const hash = await argon.hash(dto.password);
 
+		//! If the yt course does not show a way to remmove the
+		// !try/catch and centralise the exeception handling then I will search for a way later on
 		try {
 			const user = await this.prisma.user.create({
 				data: {
