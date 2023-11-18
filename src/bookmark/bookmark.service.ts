@@ -1,22 +1,15 @@
-import { JwtGuard } from 'src/auth/guard';
-import { BookmarkService } from 'src/bookmark/bookmark.controller';
+import { Injectable } from '@nestjs/common';
+import { CreateBookmarkDto, EditBookmarkDto } from './dto';
 
-@UseGuards(JwtGuard)
-@Controller('bookmarks')
-export class BookmarkController {
-	constructor(private bookmarkService: BookmarkService) {}
-	@Post()
-	createBookmark() {}
+@Injectable()
+export class BookmarkService {
+	getBookmarks(userID: number) {}
 
-	@Get()
-	getBookmarks() {}
+	getBookmarksByID(userID: number, bookmarkID: number) {}
 
-	@Get()
-	getBookmarksID() {}
+	createBookmark(userID: number, dto: CreateBookmarkDto) {}
 
-	@Patch()
-	editBookmarkByID() {}
+	editBookmarkByID(userID: number, bookmarkID: number, dto: EditBookmarkDto) {}
 
-	@Delete()
-	deleteBookmark() {}
+	deleteBookmark(userID: number, bookmarkID: number) {}
 }
