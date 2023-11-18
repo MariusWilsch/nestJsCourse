@@ -89,9 +89,20 @@ describe('App e2e', () => {
 	});
 	// * Bookmark e2e tests
 	describe('Bookmarks', () => {
-		describe('Create bookmarks', () => {});
+		describe('Get empty bookmarks', () => {
+			it('should return empty array when no bookmarks are created', () => {
+				return pactum
+					.spec()
+					.get('/bookmarks')
+					.withBearerToken('$S{userAt}')
+					.expectStatus(200)
+					.inspect();
+				// .expectJson([]);
+			});
+		});
 		describe('Get bookmarks', () => {});
 		describe('Get bookmark by ID', () => {});
+		describe('Create bookmarks', () => {});
 		describe('Edit bookmark by ID', () => {});
 		describe('Delete bookmark', () => {});
 	});
