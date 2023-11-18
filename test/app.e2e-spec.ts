@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as pactum from 'pactum';
 import { AuthDto } from 'src/auth/dto';
 import { EditUserDto } from 'src/user/dto';
+import { EditBookmarkDto } from 'src/bookmark/dto';
 
 describe('App e2e', () => {
 	let app: INestApplication;
@@ -25,14 +26,14 @@ describe('App e2e', () => {
 		app.close();
 	});
 
+	const postReq = (route: string, body: object, status: number) =>
+		pactum.spec().post(route).withBody(body).expectStatus(status);
+
 	describe('auth', () => {
 		const dto: AuthDto = {
 			email: 'user@example.com',
 			password: '123',
 		};
-
-		const postReq = (route: string, body: object, status: number) =>
-			pactum.spec().post(route).withBody(body).expectStatus(status);
 
 		//* SignUp
 		describe('Signup', () => {
@@ -89,21 +90,80 @@ describe('App e2e', () => {
 	});
 	// * Bookmark e2e tests
 	describe('Bookmarks', () => {
+		const route = '/bookmarks';
 		describe('Get empty bookmarks', () => {
 			it('should return empty array when no bookmarks are created', () => {
 				return pactum
 					.spec()
-					.get('/bookmarks')
+					.get(route)
 					.withBearerToken('$S{userAt}')
 					.expectStatus(200)
-					.inspect();
-				// .expectJson([]);
+					.expectJson([]);
 			});
 		});
-		describe('Get bookmarks', () => {});
-		describe('Get bookmark by ID', () => {});
-		describe('Create bookmarks', () => {});
-		describe('Edit bookmark by ID', () => {});
-		describe('Delete bookmark', () => {});
+		describe('Create bookmarks', () => {
+			it('should create bookmark', () => {
+				const dto = {
+					title: 'Google',
+					link: 'https://google.com',
+					description: 'Search engine for the web',
+				};
+				return pactum
+					.spec()
+					.post(route)
+					.withBearerToken('$S{userAt}')
+					.withJson(dto)
+					.expectStatus(201)
+					.expectJsonMatch({
+						...dto,
+					})
+					.stores('bookmarkId', 'id');
+			});
+		});
+		describe('Get bookmarks', () => {
+			it('Get all bookmarks', () => {
+				return pactum
+					.spec()
+					.get(route)
+					.withBearerToken('$S{userAt}')
+					.expectStatus(200)
+					.expectJsonLength(1);
+			});
+		});
+		describe('Get bookmark by ID', () => {
+			it('Get bookmark by ID', () => {
+				return pactum
+					.spec()
+					.get(route + '/$S{bookmarkId}')
+					.withBearerToken('$S{userAt}')
+					.expectStatus(200)
+					.expectJsonMatch({
+						id: '$S{bookmarkId}',
+					});
+			});
+		});
+		describe('Edit bookmark by ID', () => {
+			const dto: EditBookmarkDto = {
+				description: 'New description',
+			};
+			it('Edit description in bookmark', () => {
+				return pactum
+					.spec()
+					.patch(route + '/$S{bookmarkId}')
+					.withJson(dto)
+					.withBearerToken('$S{userAt}')
+					.expectStatus(200)
+					.expectJsonLike(dto);
+			});
+		});
+		describe('Delete bookmark', () => {
+			it('Delete bookmark', () => {
+				return pactum
+					.spec()
+					.delete(route + '/$S{bookmarkId}')
+					.withBearerToken('$S{userAt}')
+					.expectStatus(204);
+			});
+		});
 	});
 });
