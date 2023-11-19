@@ -164,6 +164,14 @@ describe('App e2e', () => {
 					.withBearerToken('$S{userAt}')
 					.expectStatus(204);
 			});
+			it('Should get empty bookmarks', () => {
+				return pactum
+					.spec()
+					.get(route)
+					.withBearerToken('$S{userAt}')
+					.expectStatus(200)
+					.expectJson([]);
+			});
 		});
 	});
 });

@@ -36,6 +36,20 @@ export class BookmarkService {
 		bookmarkID: number,
 		dto: EditBookmarkDto,
 	) {
+		await this.verifyBookmarkOwnership(userID, bookmarkID);
+		return this.prismaService.bookmark.update({
+			where: { id: bookmarkID },
+			data: { ...dto },
+		});
+	}
+
+	async deleteBookmark(userID: number, bookmarkID: number) {
+		await this.verifyBookmarkOwnership(userID, bookmarkID);
+		return this.prismaService.bookmark.delete({ where: { id: bookmarkID } });
+	}
+
+	/* Helper functions */
+	async verifyBookmarkOwnership(userID: number, bookmarkID: number) {
 		// get bookmark
 		const bookmark = await this.prismaService.bookmark.findUnique({
 			where: {
@@ -45,15 +59,5 @@ export class BookmarkService {
 		// check if user owns bookmark
 		if (!bookmark || bookmark.userID !== userID)
 			throw new ForbiddenException('Access to resource denied');
-		return this.prismaService.bookmark.update({
-			where: {
-				id: bookmarkID,
-			},
-			data: {
-				...dto,
-			},
-		});
 	}
-
-	async deleteBookmark(userID: number, bookmarkID: number) {}
 }
